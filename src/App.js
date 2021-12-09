@@ -1,19 +1,30 @@
 import React from 'react';
-// import { Counter } from './features/counter/Counter';
-
 import Header from './components/Header';
-import Home from './components/Home';
-
 import './App.css';
+import Home from './components/Home';
+import Detail from './components/Detail'
+
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route
+} 
+from "react-router-dom";
+
 
 function App() {
   return (
     <div className="App">
+      <Router>
       <Header/>
+      <Routes>
+        <Route path="/detail" element={<Detail/>} />
+        <Route path="/" element={<Home/>} />
+      </Routes>
      
-      <Home/>
+      {/* <Home/> */}
       
-      
+      </Router>
     </div>
   );
 }
