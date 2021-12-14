@@ -53,6 +53,7 @@ const Wrapper = styled.div`
 const LogoOne = styled.img`
 `
 const LogoTwo = styled.img`
+    width: 100%;
 `
 const SignUp = styled.a`
     width: 100%;
