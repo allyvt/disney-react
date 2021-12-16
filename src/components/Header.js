@@ -1,9 +1,73 @@
-import React from 'react'
-import styled from 'styled-components'
+import React, {useEffect} from 'react'
+import styled from 'styled-components';
+import {
+    selectUserName,
+    setUserLogin,
+    setSignOut,
+} from "../features/user/userSlice";
+import {
+    useDispatch, useSelector
+} from "react-redux";
+import {
+    getAuth,
+    signInWithPopup,
+    GoogleAuthProvider,
+    signOut,
+    onAuthStateChanged
+} from "firebase/auth";
+import {useNavigate} from "react-router-dom";
+
 function Header() {
+    const dispatch = useDispatch()
+    const userName = useSelector(selectUserName)
+    const provider= new GoogleAuthProvider();
+    const auth = getAuth();
+    const navigate = useNavigate()
+
+//signin function
+    const signIn = () =>{
+        signInWithPopup(auth, provider)
+        .then ((result)=>{
+            const user = result.user;
+            dispatch(setUserLogin({
+                name: user.displayName,
+                email: user.email,
+                photo: user.photoURL
+            }))
+            navigate("/")
+            console.log(result , "<<<this is")
+        })
+    }
+//sign out function
+    const signOutFunc = ()=>{
+        signOut(auth)
+        .then(()=>{
+            dispatch(setSignOut())
+            navigate("/login")
+        })
+    }
+    useEffect(()=>{
+        onAuthStateChanged(auth, (user)=>{
+            if(user){
+                dispatch(setUserLogin({
+                    name: user.displayName,
+                    email: user.email,
+                    photo: user.photoURL
+                }))
+                navigate("/")
+            }
+        })
+    },[])
+
     return (
         <Nav>
             <Logo src="/images/logo.svg"/>
+            {!userName ? (
+                <LoginContainer>
+                    <Login onClick = {signIn}>Login</Login>
+                </LoginContainer>
+            ):
+            <>
             <NavMenu>
                 <a>
                     <img src='/images/home-icon.svg'/>
@@ -34,7 +98,10 @@ function Header() {
                     <span>SERIES</span>
                 </a>
             </NavMenu>
-            <UserImg src ="https://preview.redd.it/nszghpr0a4v61.jpg?auto=webp&s=d49f0054d46ba05b7d34ca46ea113e24a128f321"/>
+            <UserImg onClick ={signOutFunc} src ="https://preview.redd.it/nszghpr0a4v61.jpg?auto=webp&s=d49f0054d46ba05b7d34ca46ea113e24a128f321"/>
+            </>
+            }
+            
         </Nav>
     )
 }
@@ -98,4 +165,25 @@ const UserImg = styled.img`
     height: 48px;
     border-radius: 50%;
     cursor: pointer;
+`
+const Login = styled.div`
+    border: 1px solid #f9f9f9;
+    padding: 8px 16px;
+    border-radius: 4px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background-color: rgba(0, 0, 0, 0.6);
+    transition: all 0.2s ease 0s;
+    cursor: pointer;
+
+    &:hover{
+        background-color: #f9f9f9;
+        color: #000;
+        border-color: transparent;
+    }
+`
+const LoginContainer = styled.div`
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
 `
